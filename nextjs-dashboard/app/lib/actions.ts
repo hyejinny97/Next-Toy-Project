@@ -27,11 +27,17 @@ export async function createInvoice(formData: FormData) {
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
 
-  // DB에 데이터 저장
-  await sql`
-    INSERT INTO invoices (customer_id, amount, status, date) 
-    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `;
+  try {
+    // DB에 데이터 저장
+    await sql`
+      INSERT INTO invoices (customer_id, amount, status, date) 
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
+  } catch (e) {
+    return {
+      message: 'Database Error: Failed to Create Invoice.',
+    };
+  }
 
   // client-side router cache 제거 및 페이지 이동
   revalidatePath('/dashboard/invoices');
@@ -48,12 +54,18 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   const amountInCents = amount * 100;
 
-  // DB 데이터 수정
-  await sql`
+  try {
+    // DB 데이터 수정
+    await sql`
     UPDATE invoices
     SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
     WHERE id = ${id}
   `;
+  } catch (e) {
+    return {
+      message: 'Database Error: Failed to Update Invoice.',
+    };
+  }
 
   // client-side router cache 제거 및 페이지 이동
   revalidatePath('/dashboard/invoices');
@@ -61,11 +73,20 @@ export async function updateInvoice(id: string, formData: FormData) {
 }
 
 export async function deleteInvoice(id: string) {
-  // DB 데이터 삭제
-  await sql`
+  try {
+    // DB 데이터 삭제
+    await sql`
     DELETE FROM invoices WHERE id = ${id}
+    
   `;
 
-  // client-side router cache 제거
-  revalidatePath('/dashboard/invoices');
+    // client-side router cache 제거
+    revalidatePath('/dashboard/invoices');
+
+    return { message: 'Deleted Invoice.' };
+  } catch (e) {
+    return {
+      message: 'Database Error: Failed to Delete Invoice.',
+    };
+  }
 }
