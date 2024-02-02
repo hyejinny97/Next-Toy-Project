@@ -59,3 +59,13 @@ export async function updateInvoice(id: string, formData: FormData) {
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
+
+export async function deleteInvoice(id: string) {
+  // DB 데이터 삭제
+  await sql`
+    DELETE FROM invoices WHERE id = ${id}
+  `;
+
+  // client-side router cache 제거
+  revalidatePath('/dashboard/invoices');
+}
