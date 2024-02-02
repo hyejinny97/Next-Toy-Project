@@ -2,6 +2,8 @@
 
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -14,6 +16,7 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function createInvoice(formData: FormData) {
+  // validation
   const { customerId, amount, status } = CreateInvoice.parse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
@@ -23,8 +26,13 @@ export async function createInvoice(formData: FormData) {
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
 
+  // DB에 데이터 저장
   await sql`
-    INSERT INTO invoices (customerId, amount, status, date) 
+    INSERT INTO invoices (customer_id, amount, status, date) 
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `;
+
+  // client-side router cache 제거 및 페이지 이동
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
 }
