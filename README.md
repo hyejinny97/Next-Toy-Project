@@ -2,6 +2,10 @@
 
 Next.js 공식 홈페이지에서 제공하는 [demo website course](https://nextjs.org/learn)에 따라 'dashboard-app'을 만들고자 한다.
 
+## 🔗 배포 사이트 링크
+
+- 배포 사이트 링크 👉 <https://next-toy-project-one.vercel.app/>
+
 ## 💁‍♂️ 프로젝트 설명
 
 <img src='./assets/next-dashboard.avif' width='600px'/>
